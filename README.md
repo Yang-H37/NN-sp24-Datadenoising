@@ -1,5 +1,5 @@
-## Part1: Conceptual design
-# Data
+# Part 1: Conceptual design
+## Data
 **Training and Validation DataSets:**
 
 A collection of photos taken in low-light conditions with natural environmental noise. They are split into a 3:1 ratio for training and validation.
@@ -8,7 +8,7 @@ A collection of photos taken in low-light conditions with natural environmental 
 
 A set of photos taken by myself in low-light conditions and provide natural environmental noise. (If the quantity is insufficient, a portion of the training and validation sets will be further divided to augment the test set.)
 
-# Model
+## Model
 The structure of an autoencoder consists of an encoder and a decoder. The encoder encodes input images with noise to obtain a feature representation of the image.For image feature extraction, available encoders include convolutional neural networks (CNN), self-attention networks, etc.
 
 **CNN:** 
@@ -33,5 +33,16 @@ Additionally, as a variant of autoencoders, variational autoencoders encode and 
 
 In model construction, it is anticipated to use a self-attention network to construct the encoder and a generative adversarial network to construct the decoder for the image denoising task. Various combinations of the mentioned networks will be explored to seek the optimal solution.
 
-# Training and Evaluation
+## Training and Evaluation
 Employ mean squared error or cross-entropy as the loss function, with Adam or SGD optimizers. Evaluate image denoising effectiveness using metrics like PSNR(Peak Signal-to-Noise Ratio) and SSIM(Structural Similarity Index).
+
+# Part 2: Datasets
+## Source
+### Description of SIDD dataset
+The Smartphone Image Denoising Dataset (SIDD) is a dataset which has nearly 30,000 noisy images from 10 scenes under different lighting conditions, using five representative smartphone cameras and generated their ground truth images. Using the noisy images and their ground truth, we can train and evaluate our own data denoising algorithms.
+
+The SIDD dataset is publicly available and can be downloaded from the official website: [SIDD Dataset](https://www.eecs.yorku.ca/~kamel/sidd/index.php).
+
+The dataset is introduced in the following paper: 
+
+[Abdelrahman Abdelhamed, Lin S., Brown M. S. "A High-Quality Denoising Dataset for Smartphone Cameras", IEEE Computer Vision and Pattern Recognition (CVPR), June 2018.](https://ieeexplore.ieee.org/document/8578280)
