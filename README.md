@@ -73,3 +73,12 @@ In ideal daytime shooting conditions, the ISO value of the camera should be kept
 Therefore, when dividing the dataset, we will use 60% of the data from the SIDD dataset as training data. In the training set, we will focus on selecting images from different shooting scenes, with higher ISO values (greater than or equal to 1600), and lower shooting brightness, to enable the model to learn more about image denoising in dark scenes and form more reasonable weight and bias learning parameters. Additionally, to ensure the generalization of the model, about 25% of the training set data will be added, including images from different shooting scenes, lower ISO values, and normal or higher shooting brightness.
 
 Furthermore, we will use 20% of the data from the SIDD dataset as the validation set. To prevent overfitting, the proportion of images in the validation set from different shooting scenes, with higher ISO values (greater than or equal to 1600), and lower shooting brightness to images with lower ISO values, normal or higher shooting brightness will be adjusted to 1:3. This adjustment increases the number of images in normal shooting environments and prevents the model from overfitting to enhance the denoising effect on dark condition images.
+
+## Distinct objects/subjects
+There are a total of 160 scenes, with 41 having an ISO value greater than or equal to 1600 and 119 having an ISO value less than 1600. Each scene has a sample size of 150.
+
+## Brief Characterization of Samples
++ resolution: 4032×3024
++ sensors used: GP: Google Pixel, IP: iPhone 7, S6: Samsung Galaxy S6 Edge, N6: Motorola Nexus 6, G4: LG G4 (smartphone camera)
++ ambient conditions: low light, normal brightness, high exposure
++ ISO: 100, 200, 400, 500, 640, 800, 1600, 3200, 6400, 10000
