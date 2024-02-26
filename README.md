@@ -2,7 +2,7 @@
 ## Data
 **Training and Validation DataSets:**
 
-A collection of photos taken in low-light conditions with natural environmental noise. They are split into a 3:1 ratio for training and validation.
+A collection of photos taken with natural environmental noise. They are split into a 3:1 ratio for training and validation.
 
 **Test DataSet:**
 
@@ -39,10 +39,37 @@ Employ mean squared error or cross-entropy as the loss function, with Adam or SG
 # Part 2: Datasets
 ## Source
 ### Description of SIDD dataset
-The Smartphone Image Denoising Dataset (SIDD) is a dataset which has nearly 30,000 noisy images from 10 scenes under different lighting conditions, using five representative smartphone cameras and generated their ground truth images. Using the noisy images and their ground truth, we can train and evaluate our own data denoising algorithms.
+The Smartphone Image Denoising Dataset (SIDD) is a dataset which has nearly 30,000 noisy images from 10 scenes under different lighting conditions, using five representative smartphone cameras and generated their ground truth images. Using the noisy images and their ground truth, we can train and validate our own data denoising algorithms.
 
-The SIDD dataset is publicly available and can be downloaded from the official website: [SIDD Dataset](https://www.eecs.yorku.ca/~kamel/sidd/index.php).
+Each image is stored in a directory with the name of the scene instance as follows:
+
+**_[scene-instance-number][scene-number][smartphone-camera-code][ISO-level][shutter-speed][illuminat-temperature][illuminant-brightness-code]_**
+
+where "smartphone-camera-code" is one of the following:
++ GP: Google Pixel
++ IP: iPhone 7
++ S6: Samsung Galaxy S6 Edge
++ N6: Motorola Nexus 6
++ G4: LG G4
+
+and 
+
+"illuminant-brightness-code" is one of the following:
++ L: low light
++ N: normal brightness
++ H: high exposure
+
+The SIDD dataset is publicly available and can be downloaded from the official website: 
+
+[SIDD Dataset](https://www.eecs.yorku.ca/~kamel/sidd/index.php).
 
 The dataset is introduced in the following paper: 
 
 [Abdelrahman Abdelhamed, Lin S., Brown M. S. "A High-Quality Denoising Dataset for Smartphone Cameras", IEEE Computer Vision and Pattern Recognition (CVPR), June 2018.](https://ieeexplore.ieee.org/document/8578280)
+
+## Differences Between Train and Validation Subsets
+In ideal daytime shooting conditions, the ISO value of the camera should be kept around 100-200. However, in special conditions such as dusk or darkness, it is necessary to increase the ISO value of the camera to enhance its shooting capability in low-light conditions. In such cases, the ISO parameter usually increases to 1600 or higher. Increasing the ISO value introduces more noise, which is the main problem to be addressed during image denoising in smartphone photography.
+
+Therefore, when dividing the dataset, we will use 60% of the data from the SIDD dataset as training data. In the training set, we will focus on selecting images from different shooting scenes, with higher ISO values (greater than or equal to 1600), and lower shooting brightness, to enable the model to learn more about image denoising in dark scenes and form more reasonable weight and bias learning parameters. Additionally, to ensure the generalization of the model, about 25% of the training set data will be added, including images from different shooting scenes, lower ISO values, and normal or higher shooting brightness.
+
+Furthermore, we will use 20% of the data from the SIDD dataset as the validation set. To prevent overfitting, the proportion of images in the validation set from different shooting scenes, with higher ISO values (greater than or equal to 1600), and lower shooting brightness to images with lower ISO values, normal or higher shooting brightness will be adjusted to 1:3. This adjustment increases the number of images in normal shooting environments and prevents the model from overfitting to enhance the denoising effect on dark condition images.
