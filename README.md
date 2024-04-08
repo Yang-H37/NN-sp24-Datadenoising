@@ -82,3 +82,52 @@ There are a total of 160 scenes, with 41 having an ISO value greater than or equ
 + sensors used: GP: Google Pixel, IP: iPhone 7, S6: Samsung Galaxy S6 Edge, N6: Motorola Nexus 6, G4: LG G4 (smartphone camera)
 + ambient conditions: low light, normal brightness, high exposure
 + ISO: 100, 200, 400, 500, 640, 800, 1600, 3200, 6400, 10000
+
+# Part 3: First solution and validation accuracy
+## QuickStart
++ Install all the dependencies using the following command: `pip install -r requirements.txt`
++ Edit `validate_single_sample.py`. Make sure you have a sample image that you want to use to de-noise in your validation set, and replace `val_sample_path = dataset/single_val/GT_SRGB_001.png` with the path to     your sample image.
++ To run this script, ensure you have all the required packages installed and your model file `denoising_autoencoder.pth` is in the same directory as this script.
++ You can execute this script using the command: `python validate_single_sample.py`
+
+## Neural Network Architecture
+### Number and Type of Layers
+The **De-noising autoencoder neural network class** is in `model.py`, including:
++ Encoder, takes an input image with 3 channels (presumably RGB images):
+
+  7 Convolutional Layers with ReLU activation
+
++ Decoder, symmetric to the encoder:
+
+  7 Transposed Convolutional Layers with ReLU activation
+
+  1 Transposed Convolutional Layer with Sigmoid activation (for output)
+
+### Loss function:
+The loss function used in this task is in `loss.py`.
++ **Structural Similarity Index (SSIM)** loss function is used to measure the similarity between the denoised image and the ground truth image.
++ SSIM takes into account luminance, contrast, and structure similarities, making it suitable for image denoising tasks.
+
+### Optimization Algorithm
+**Adam** optimizer is chosen for its adaptive learning rate capabilities.
+
+## Model Evaluation
+As this is a denoising autoencoder task and not a classification task, traditional classification accuracy metrics like correctly classified samples or incorrect classifications are not applicable.
+
+For denoising autoencoder tasks, evaluation typically involves comparing the denoised images produced by the model with the ground truth images. For this task, I choose to use Structural Similarity Index (SSIM) as the evaluation metric.
+
+### SSIM
++ SSIM measures the similarity between two images by comparing luminance, contrast, and structure.
++ SSIM ranges from -1 to 1, where 1 indicates perfect similarity between the images.
++ Lower SSIM values indicate more dissimilarity between the denoised and ground truth images.
+
+That is, in my task, I choose to use SSIM-loss as the loss function, which calculates _1-SSIM(groundTruth image, noisy image)_.
+
+**The more the loss approaches 0, The better it works.**
+
+And the training loss and the validation loss can be found in `Training and validation loss.png`. Both training loss and the validation loss is almost 0, indicating the good performance of my network.
+
+## Commends and Improve
+For the denoising autoencoder task, the current issue is that the denoised images appear in black and white instead of color, indicating the loss of color information during the training process. Following this, adjustments need to be made in the processing pipeline to ensure that the final images display in color.
+
+Additionally, a smaller dataset was used during training to reduce training time, and the evaluation dataset shares high similarity with the training set. Therefore, even though both train loss and validation loss are low, the model's generalization capability may not meet expectations. Subsequently, it's necessary to increase the size of the training dataset to see how well it may perform and make more reasonable divisions for the training set.
