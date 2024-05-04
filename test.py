@@ -1,7 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 from PIL import Image
 import os
@@ -70,7 +68,7 @@ class SSIM(nn.Module):
         ssim_loss = torch.mean(ssim_loss)
         return ssim_loss
 
-class ImagePairDataset(Dataset):
+class ImagePairDataset(torch.utils.data.Dataset):
     def __init__(self, root_dir, transform=None, target_size=(256, 256)):
         self.root_dir = root_dir
         self.transform = transform
@@ -98,91 +96,52 @@ class ImagePairDataset(Dataset):
 
         return gt_image, noisy_image
 
+# Load the trained model
+model = Denoising_Autoencoder()
+model.load_state_dict(torch.load('denoising_autoencoder.pth', map_location=torch.device('cpu')))
+model.eval()
 
-# Define training parameters and data loaders
-root_dir = "dataset/train/"
-val_root_dir = "dataset/val/"
-batch_size = 4
-num_epochs = 10
-lr = 0.001
-
+# Define transform
 transform = transforms.Compose([
     transforms.ToTensor(),
 ])
 
-target_size = (256, 256)
-dataset = ImagePairDataset(root_dir, transform=transform, target_size=target_size)
-train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+# Load test dataset
+test_root_dir = "dataset/long_png"
+test_dataset = ImagePairDataset(test_root_dir, transform=transform)
+test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=1, shuffle=False)
 
-val_dataset = ImagePairDataset(val_root_dir, transform=transform, target_size=target_size)
-val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
-
-# Initialize the model, loss function, and optimizer
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = Denoising_Autoencoder().to(device)
+# Evaluate the model on the test set
+device = torch.device("cpu")
 criterion = SSIM().to(device)
-optimizer = optim.Adam(model.parameters(), lr=lr)
+test_losses = []
 
-# Training
-train_losses = []
-val_losses = []
-for epoch in range(num_epochs):
-    model.train()
-    running_loss = 0.0
+output_dir = 'test_output'
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
 
-    for i, (gt_images, noisy_images) in enumerate(train_loader):
+with torch.no_grad():
+    for idx, (gt_images, noisy_images) in enumerate(test_loader):
         gt_images = gt_images.to(device)
         noisy_images = noisy_images.to(device)
 
-        optimizer.zero_grad()
-
         outputs = model(noisy_images)
         loss = criterion(outputs, gt_images)
-        loss.backward()
-        optimizer.step()
+        test_losses.append(loss.item())
 
-        running_loss += loss.item()
+        # Save denoised images
+        denoised_image = outputs[0].permute(1, 2, 0).cpu().detach().numpy()
+        denoised_image = (denoised_image * 255).astype('uint8')
+        Image.fromarray(denoised_image).save(os.path.join(output_dir, f'denoised_image_{idx}.png'))
 
-    avg_train_loss = running_loss / len(train_loader)
-    print(f"Epoch [{epoch + 1}/{num_epochs}], Training Loss: {avg_train_loss}")
-    train_losses.append(avg_train_loss)
 
-    # Validation
-    model.eval()
-    val_loss = 0.0
-    with torch.no_grad():
-        for gt_images, noisy_images in val_loader:
-            gt_images = gt_images.to(device)
-            noisy_images = noisy_images.to(device)
+avg_test_loss = sum(test_losses) / len(test_losses)
+print(f"Average SSIM Loss of Test Dataset: {avg_test_loss:.4f}")
 
-            outputs = model(noisy_images)
-            loss = criterion(outputs, gt_images)
-            val_loss += loss.item()
-
-            # Show some de-noised images
-            if epoch == num_epochs - 1:
-                fig, axes = plt.subplots(nrows=2, ncols=4, figsize=(16, 8))
-                for idx, ax in enumerate(axes.flat):
-                    if idx < 4:
-                        ax.imshow(noisy_images[idx].permute(1, 2, 0).cpu())
-                        ax.set_title("Noisy Image")
-                    else:
-                        ax.imshow(outputs[idx - 4].permute(1, 2, 0).cpu().detach().numpy())
-                        ax.set_title("Denoised Image")
-                plt.show()
-
-    avg_val_loss = val_loss / len(val_loader)
-    print(f"Epoch [{epoch + 1}/{num_epochs}], Validation Loss: {avg_val_loss}")
-    val_losses.append(avg_val_loss)
-
-# Save the trained model
-torch.save(model.state_dict(), 'denoising_autoencoder.pth')
-
-# Plotting training and validation loss
-plt.plot(train_losses, label='Training Loss')
-plt.plot(val_losses, label='Validation Loss')
-plt.xlabel('Epoch')
-plt.ylabel('Loss')
-plt.title('Training and Validation Loss')
-plt.legend()
-plt.show()
+# Plot the SSIM loss of the test dataset
+plt.plot(test_losses)
+plt.xlabel('Image')
+plt.ylabel('SSIM Loss')
+plt.title('SSIM Loss of Test Dataset')
+plt.savefig(os.path.join(output_dir, 'ssim_loss_plot.png'))
+plt.close()
