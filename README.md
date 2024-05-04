@@ -131,3 +131,25 @@ And the training loss and the validation loss can be found in `Training and vali
 For the denoising autoencoder task, the current issue is that the denoised images appear in black and white instead of color, indicating the loss of color information during the training process. Following this, adjustments need to be made in the processing pipeline to ensure that the final images display in color.
 
 Additionally, a smaller dataset was used during training to reduce training time, and the evaluation dataset shares high similarity with the training set. Therefore, even though both train loss and validation loss are low, the model's generalization capability may not meet expectations. Subsequently, it's necessary to increase the size of the training dataset to see how well it may perform and make more reasonable divisions for the training set.
+
+
+# Part 4: Final solution
+## QuickStart
++ Install all the dependencies using the following command: `pip install -r requirements.txt`
++ Edit `validate_single_sample.py`. Make sure you have a sample image that you want to use to de-noise in your validation set, and replace `val_sample_path = dataset/single_val/GT_SRGB_001.png` with the path to     your sample image.
++ To run this script, ensure you have all the required packages installed and your model file `denoising_autoencoder.pth` is in the same directory as this script.
++ You can execute this script using the command: `python validate_single_sample.py`
+
+## test database
+My test dataset consists of approximately 250 images, all of which were captured with a smartphone under nighttime conditions. Compared to the training and validation datasets, my test set is more similar to the everyday use of smartphones, capturing landscape photos at night, which are closer to natural scenes and more influenced by environmental conditions.
+
+The photos in the training and validation sets are sourced from the SIDD dataset, where the shooting environment is artificially created, thus reducing the impact of natural conditions. Additionally, the SIDD dataset mainly consists of indoor photos, while my dataset mainly consists of outdoor photos, which are more susceptible to factors such as lighting at night.
+
+This is crucial because people often use their smartphones to take photos in random natural environments, rather than in controlled indoor settings (otherwise, why not use a professional camera?).
+
+## Classification accuracy on the test set
+ ![Image text](https://github.com/Yang-H37/NN-sp24-Datadenoising/blob/main/ssim_loss_plot.png)
+
+The average loss on the test set is 0.1385. However, examining the loss plot reveals that some images in the test set do not have very good denoising results, with losses reaching 0.3 or even higher.
+
+## Reasons for performance difference and improvements
