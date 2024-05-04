@@ -107,7 +107,7 @@ transform = transforms.Compose([
 ])
 
 # Load test dataset
-test_root_dir = "dataset/long_png"
+test_root_dir = "dataset/long_png_resized"
 test_dataset = ImagePairDataset(test_root_dir, transform=transform)
 test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=1, shuffle=False)
 
