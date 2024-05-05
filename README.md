@@ -150,6 +150,7 @@ This is crucial because people often use their smartphones to take photos in ran
 ## Classification accuracy on the test set
  ![Image text](https://github.com/Yang-H37/NN-sp24-Datadenoising/blob/main/ssim_loss_plot.png)
 
-The average loss on the test set is 0.1385. However, examining the loss plot reveals that some images in the test set do not have very good denoising results, with losses reaching 0.3 or even higher.
+The average loss on the test set is 0.1498. However, examining the loss plot reveals that some images in the test set do not have very good denoising results, with losses reaching 0.3 or even higher.
 
 ## Reasons for performance difference and improvements
+
