@@ -153,4 +153,11 @@ This is crucial because people often use their smartphones to take photos in ran
 The average loss on the test set is 0.1498. However, examining the loss plot reveals that some images in the test set do not have very good denoising results, with losses reaching 0.3 or even higher.
 
 ## Reasons for performance difference and improvements
+I found that when I use the network to denoise the image that has lot of books, the SSIM loss will increase heavily. I think the reason may lie on:
++ Denoising algorithms tend to smooth out images, potentially removing fine details such as text and intricate patterns in the books. SSIM is sensitive to these changes.
++ Denoising algorithms often introduce a degree of blurring, especially around edges and high-contrast areas. This blurring can lead to a decrease in structural similarity, as measured by SSIM.
++ The presence of books usually means a lot of textural information. Denoising might remove or blur this textural information, leading to a decrease in SSIM.
 
+To improve performance when denoising images with features like lots of books:
++ Augment the training data with various levels of noise and book patterns to make the network more robust to these variations.
++ Experiment with different loss functions that might better suit this case. For example, combining SSIM loss with other loss functions like MSE.
